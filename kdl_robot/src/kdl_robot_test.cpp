@@ -208,13 +208,12 @@ int main(int argc, char **argv) {
     ROS_INFO_STREAM_ONCE("Starting control loop ...");
 
     // Init trajectory
-    KDL::Frame des_pose = KDL::Frame::Identity(); KDL::Twist des_cart_vel = KDL::Twist::Zero(), des_cart_acc = KDL::Twist::Zero();
+    KDL::Frame des_pose = KDL::Frame::Identity();
+    KDL::Twist des_cart_vel = KDL::Twist::Zero(), des_cart_acc = KDL::Twist::Zero();
     des_pose.M = robot.getEEFrame().M;
 
-    while ((ros::Time::now()-begin).toSec() < 2*traj_duration + init_time_slot)
-    {
-        if (robot_state_available)
-        {
+    while ((ros::Time::now()-begin).toSec() < 2*traj_duration + init_time_slot) {
+        if (robot_state_available) {
             // Update robot
             robot.update(jnt_pos, jnt_vel);
 
@@ -225,18 +224,13 @@ int main(int argc, char **argv) {
             // Extract desired pose
             des_cart_vel = KDL::Twist::Zero();
             des_cart_acc = KDL::Twist::Zero();
-            if (t <= init_time_slot) // wait a second
-            {
+            if (t <= init_time_slot) { // wait a second
                 p = planner.compute_trajectory(0.0);
-            }
-            else if(t > init_time_slot && t <= traj_duration + init_time_slot)
-            {
+            } else if (t > init_time_slot && t <= traj_duration + init_time_slot) {
                 p = planner.compute_trajectory(t-init_time_slot);
                 des_cart_vel = KDL::Twist(KDL::Vector(p.vel[0], p.vel[1], p.vel[2]),KDL::Vector::Zero());
                 des_cart_acc = KDL::Twist(KDL::Vector(p.acc[0], p.acc[1], p.acc[2]),KDL::Vector::Zero());
-            }
-            else
-            {
+            } else {
                 ROS_INFO_STREAM_ONCE("trajectory terminated");
                 break;
             }
@@ -267,7 +261,7 @@ int main(int argc, char **argv) {
             double Ko = 400;
             // Cartesian space inverse dynamics control
             // tau = controller_.idCntr(des_pose, des_cart_vel, des_cart_acc,
-            //                          Kp, Ko, 2*sqrt(Kp), 2*sqrt(Ko),error);
+            //                          Kp, Ko, 2*sqrt(Kp), 2*sqrt(Ko), error);
 
             // Set torques
             tau1_msg.data = tau[0];
@@ -293,10 +287,11 @@ int main(int argc, char **argv) {
             loop_rate.sleep();
         }
     }
-    if(pauseGazebo.call(pauseSrv))
+    if (pauseGazebo.call(pauseSrv)) {
         ROS_INFO("Simulation paused.");
-    else
+    } else {
         ROS_INFO("Failed to pause simulation.");
+    }
 
     return 0;
 }
