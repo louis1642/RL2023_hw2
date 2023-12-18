@@ -186,9 +186,12 @@ void KDLRobot::getInverseKinematics(KDL::Frame &f,
                               KDL::JntArray &dq,
                               KDL::JntArray &ddq)
 {
+    // position inversion
     q = getInvKin(q,f);
+    // velocity inversion
     ikVelSol_->CartToJnt(q,twist,dq);
 
+    // acceleration inversion ddq = Jpinv * (ddx + Jdot * dq)
     Eigen::Matrix<double,6,7> J = toEigen(getEEJacobian());
     Eigen::VectorXd x_ddot = toEigen(acc); 
     Eigen::VectorXd Jdot_qdot = getEEJacDotqDot();
